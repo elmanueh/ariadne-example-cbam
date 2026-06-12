@@ -1,0 +1,88 @@
+name: Collect Analyzer Artifacts
+description: Merge analyzer artifacts and upload the final artifact bundle.
+
+runs:
+  using: composite
+  steps:
+    - name: Read config
+      id: config
+      shell: bash
+      run: python3 .github/scripts/read-analyzer-config.py
+
+    - name: Prepare artifact directory
+      shell: bash
+      run: mkdir -p "${{ steps.config.outputs.artifacts-dir }}"
+
+    - name: Download phase artifacts
+      uses: actions/download-artifact@v6
+      continue-on-error: true
+      with:
+        pattern: analyzer-phase-artifacts-*
+        path: ${{ runner.temp }}/phase-artifacts
+        merge-multiple: false
+
+    - name: Merge phase artifacts
+      shell: bash
+      run: |
+        python3 <<'PY'
+        import json
+        import shutil
+        from pathlib import Path
+
+        artifacts_path = Path("${{ steps.config.outputs.artifacts-dir }}")
+        download_path = Path("${{ runner.temp }}") / "phase-artifacts"
+        artifacts_path.mkdir(parents=True, exist_ok=True)
+
+        merged: list[dict] = []
+        seen: set[tuple[str, str, str]] = set()
+
+        for artifact_file in sorted(download_path.glob("*/artifacts.json")):
+            try:
+                payload = json.loads(artifact_file.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+
+            raw_artifacts = payload.get("artifacts", []) if isinstance(payload, dict) else []
+            if not isinstance(raw_artifacts, list):
+                continue
+
+            for raw_artifact in raw_artifacts:
+                if not isinstance(raw_artifact, dict):
+                    continue
+                key = (
+                    str(raw_artifact.get("artifact_type", "")),
+                    str(raw_artifact.get("name", "")),
+                    str(raw_artifact.get("path", "")),
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                merged.append(raw_artifact)
+
+        for source in sorted(download_path.glob("*")):
+            if not source.is_dir():
+                continue
+            for item in source.iterdir():
+                if item.name == "artifacts.json":
+                    continue
+                target = artifacts_path / item.name
+                if item.is_dir():
+                    shutil.copytree(item, target, dirs_exist_ok=True)
+                elif item.is_file():
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(item, target)
+
+        if merged:
+            (artifacts_path / "artifacts.json").write_text(
+                json.dumps({"artifacts": merged}, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+        PY
+
+    - name: Upload artifacts
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: modular-analyzer-artifacts
+        path: ${{ steps.config.outputs.artifacts-dir }}
+        if-no-files-found: warn

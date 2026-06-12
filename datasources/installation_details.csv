@@ -1,0 +1,2 @@
+name_of_the_installation_english_name_,street_number,economic_activity,country,unlocode,coordinates_of_the_main_emission_source_latitude_,coordinates_of_the_main_emission_source_longitude_,reporting_period_start_,reporting_period_end_,country:_iri,communication_report_id
+Example Cement Producer,"Cement street, 2023",Clinker and cement,TR,TRABC,16.6911279,147.80337464,2023-01-01 00:00:00,2023-12-31 00:00:00,https://sws.geonames.org/298795,TRABC2023010120231231

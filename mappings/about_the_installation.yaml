@@ -1,0 +1,205 @@
+prefixes:
+  #Prefix for ontologies
+  grel: "http://users.ugent.be/~bjdmeest/function/grel.ttl#"
+  fun: "http://functions.com/"
+  param: "http://functions.com/parameters#"
+  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  rdfs: "http://www.w3.org/2000/01/rdf-schema#"
+  dc: "http://purl.org/dc/terms/"
+  foaf: "http://xmlns.com/foaf/0.1/"
+  schema: "http://schema.org/"
+  xsd: "http://www.w3.org/2001/XMLSchema#"
+  ontology-se-cbam-cbamreport: "https://purl.org/cbam/cbamreport/"
+  se-cbam-cbamreport: "https://data.com/cbam/cbamreport#"
+  ontology-geonames: "https://www.geonames.org/ontology#"
+
+mappings:
+  InstallationMapping:
+    sources:
+      - ["${about_installation_path}~csv"]
+    s: se-cbam-cbamreport:Installation_$("unlocode")
+    po:
+      - [a, ontology-se-cbam-cbamreport:Installation~iri]
+      - [
+          ontology-se-cbam-cbamreport:hasNameOrigin,
+          { "value": $("name_of_the_installation"), "datatype": "xsd:string" },
+        ]
+      - [
+          foaf:name,
+          {
+            "value": $("name_of_the_installation_english_name"),
+            "datatype": "xsd:string",
+          },
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasUNLOCODE,
+          { "value": $("unlocode"), "datatype": "xsd:string" },
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasEconomicActivity,
+          se-cbam-cbamreport:economic_activity_$("economic_activity"),
+        ]
+      - [
+          ontology-geonames:lat,
+          {
+            "value": $("coordinates_of_the_main_emission_source_latitude"),
+            "datatype": "xsd:string",
+          },
+        ]
+      - [
+          ontology-geonames:long,
+          {
+            "value": $("coordinates_of_the_main_emission_source_longitude"),
+            "datatype": "xsd:string",
+          },
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasAddress,
+          se-cbam-cbamreport:Address_$(unlocode),
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasReport,
+          se-cbam-cbamreport:CommunicationReport_$(communication_report_id),
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasRepresentative,
+          se-cbam-cbamreport:Representative_$(unlocode),
+        ]
+
+  EconomicActivityMapping:
+    sources:
+      - ["${installation_details_path}~csv"]
+    s: se-cbam-cbamreport:economic_activity_$("economic_activity")
+    po:
+      - [a, ontology-se-cbam-cbamreport:EconomicActivity~iri]
+      - [
+          rdfs:label,
+          { "value": $("economic_activity"), "datatype": "xsd:string" },
+        ]
+      - [
+          foaf:name,
+          { "value": $("economic_activity"), "datatype": "xsd:string" },
+        ]
+
+  CountryMapping:
+    sources:
+      - ["${about_installation_path}~csv"]
+    s: $(country_iri)
+    po:
+      - p: a
+        o:
+          - function: fun:get_belonging_classes
+            parameters:
+              - parameter: param:ontologyParam
+                value: "https://purl.org/cbam/CountryPlus/"
+              - parameter: param:instanceParam
+                value: $(country_iri)
+            type: iri
+      - p: ontology-geonames:countryCode
+        o:
+          - function: fun:get_property_value
+            parameters:
+              - parameter: param:ontologyParam
+                value: "https://purl.org/cbam/CountryPlus/"
+              - parameter: param:entityParam
+                value: $(country_iri)
+              - parameter: param:propertyParam
+                value: ontology-geonames:countryCode
+            type: literal
+      - p: ontology-geonames:name
+        o:
+          - function: fun:get_property_value
+            parameters:
+              - parameter: param:ontologyParam
+                value: "https://purl.org/cbam/CountryPlus/"
+              - parameter: param:entityParam
+                value: $(country_iri)
+              - parameter: param:propertyParam
+                value: ontology-geonames:name
+            type: literal
+      - p: ontology-geonames:lat
+        o:
+          - function: fun:get_property_value
+            parameters:
+              - parameter: param:ontologyParam
+                value: "https://purl.org/cbam/CountryPlus/"
+              - parameter: param:entityParam
+                value: $(country_iri)
+              - parameter: param:propertyParam
+                value: ontology-geonames:lat
+            type: literal
+        parameters:
+      - p: ontology-geonames:long
+        o:
+          - function: fun:get_property_value
+            parameters:
+              - parameter: param:ontologyParam
+                value: "https://purl.org/cbam/CountryPlus/"
+              - parameter: param:entityParam
+                value: $(country_iri)
+              - parameter: param:propertyParam
+                value: ontology-geonames:long
+            type: literal
+  AddressMapping:
+    sources:
+      - ["${about_installation_path}~csv"]
+    s: se-cbam-cbamreport:Address_$(unlocode)
+    po:
+      - [a, ontology-se-cbam-cbamreport:Address~iri]
+      - [ontology-se-cbam-cbamreport:hasCountry, $(country_iri)~iri]
+      - [
+          ontology-se-cbam-cbamreport:hasCity,
+          { "value": $("city"), "datatype": "xsd:string" },
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasPostCode,
+          { "value": $("post_code"), "datatype": "xsd:string" },
+        ]
+      - [
+          ontology-se-cbam-cbamreport:hasPoBox,
+          { "value": $("po_box"), "datatype": "xsd:string" },
+        ]
+
+      - p: ontology-se-cbam-cbamreport:hasStreet
+        o:
+          function: grel:array_get
+          parameters:
+            - parameter: grel:p_array_a
+              value:
+                function: grel:string_split
+                parameters:
+                  - parameter: grel:valueParameter
+                    value: "$(street_number)"
+                  - parameter: grel:p_string_sep
+                    value: ", "
+            - parameter: grel:param_int_i_from
+              value: "0"
+      - p: ontology-se-cbam-cbamreport:hasNumber
+        o:
+          function: grel:array_get
+          parameters:
+            - parameter: grel:p_array_a
+              value:
+                function: grel:string_split
+                parameters:
+                  - parameter: grel:valueParameter
+                    value: "$(street_number)"
+                  - parameter: grel:p_string_sep
+                    value: ", "
+            - parameter: grel:param_int_i_from
+              value: "1"
+  contactMapping:
+    sources:
+      - ["${about_installation_path}~csv"]
+    s: se-cbam-cbamreport:Representative_$(unlocode)
+    po:
+      - [a, ontology-se-cbam-cbamreport:Representative]
+      - [
+          foaf:name,
+          {
+            "value": $(name_of_authorized_representative),
+            "datatype": "xsd:string",
+          },
+        ]
+      - [foaf:phone, { "value": $(telephone), "datatype": "xsd:string" }]
+      - [foaf:mbox, { "value": $(email), "datatype": "xsd:string" }]

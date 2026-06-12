@@ -1,0 +1,114 @@
+name: Modular Analyzer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  PIPELINE_IMAGE: ${{ vars.PIPELINE_IMAGE }}
+  QASAR_KEY: ${{ secrets.QASAR_KEY }}
+
+jobs:
+  input_phases:
+    name: Input phase (${{ matrix.phase }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        phase:
+          - datasource_validation
+          - mapping_validation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run phase
+        uses: ./.github/actions/run-analyzer-phase
+        with:
+          phase: ${{ matrix.phase }}
+
+  ontology_analysis:
+    name: Ontology analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run phase
+        uses: ./.github/actions/run-analyzer-phase
+        with:
+          phase: ontology_analysis
+
+  mapping_quality_analysis:
+    name: Mapping quality analysis
+    runs-on: ubuntu-latest
+    needs:
+      - input_phases
+      - ontology_analysis
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run phase
+        uses: ./.github/actions/run-analyzer-phase
+        with:
+          phase: mapping_quality_analysis
+
+  qasar_analysis:
+    name: QASAR analysis
+    runs-on: ubuntu-latest
+    needs:
+      - ontology_analysis
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run phase
+        uses: ./.github/actions/run-analyzer-phase
+        with:
+          phase: qasar_analysis
+
+  graph_generation:
+    name: Graph generation
+    runs-on: ubuntu-latest
+    needs:
+      - input_phases
+      - mapping_quality_analysis
+      - qasar_analysis
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run phase
+        uses: ./.github/actions/run-analyzer-phase
+        with:
+          phase: graph_generation
+
+      - name: Commit generated graph
+        uses: ./.github/actions/commit-generated-graph
+
+  collect_artifacts:
+    name: Collect artifacts
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - input_phases
+      - ontology_analysis
+      - mapping_quality_analysis
+      - qasar_analysis
+      - graph_generation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Collect artifacts
+        uses: ./.github/actions/collect-analyzer-artifacts

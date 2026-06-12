@@ -1,0 +1,67 @@
+name: Commit Generated Graph
+description: Copy the generated graph into the repository and commit it if it changed.
+
+runs:
+  using: composite
+  steps:
+    - name: Read config
+      id: config
+      shell: bash
+      run: python3 .github/scripts/read-analyzer-config.py
+
+    - name: Commit generated graph
+      shell: bash
+      env:
+        SOURCE_GRAPH: ${{ steps.config.outputs.artifacts-dir }}/final_graph.nt
+        TARGET_GRAPH: ${{ steps.config.outputs.graph-output-path }}
+        TARGET_PATH_FILE: ${{ runner.temp }}/generated-graph-target-path
+        COMMIT_MESSAGE: Update generated graph
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$SOURCE_GRAPH" ]; then
+          echo "::notice::Generated graph not found at $SOURCE_GRAPH. Nothing to commit."
+          exit 0
+        fi
+
+        python3 <<'PY'
+        import os
+        import shutil
+        import sys
+        from pathlib import Path
+
+        source = Path(os.environ["SOURCE_GRAPH"])
+        target_value = os.environ["TARGET_GRAPH"].strip()
+
+        if not target_value:
+            print("::notice::outputs.graph_file is not set in ariadne.yml. Nothing to commit.")
+            Path(os.environ["TARGET_PATH_FILE"]).write_text("", encoding="utf-8")
+            sys.exit(0)
+
+        target = Path(target_value)
+
+        if target.is_absolute() or ".." in target.parts:
+            print("::error::graph-output-path must be repository-relative and cannot contain '..'.")
+            sys.exit(1)
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        Path(os.environ["TARGET_PATH_FILE"]).write_text(str(target), encoding="utf-8")
+        PY
+
+        RESOLVED_TARGET_GRAPH="$(cat "$TARGET_PATH_FILE")"
+        if [ -z "$RESOLVED_TARGET_GRAPH" ]; then
+          exit 0
+        fi
+
+        if [ -z "$(git status --porcelain -- "$RESOLVED_TARGET_GRAPH")" ]; then
+          echo "::notice::Generated graph unchanged at $RESOLVED_TARGET_GRAPH. Nothing to commit."
+          exit 0
+        fi
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add "$RESOLVED_TARGET_GRAPH"
+        git commit -m "$COMMIT_MESSAGE"
+        git pull --rebase
+        git push

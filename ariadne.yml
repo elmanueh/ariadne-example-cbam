@@ -1,0 +1,15 @@
+config:
+  mapping:
+    ontologies_standard:
+      - foaf
+  graph:
+    udfs_file: functions/mapping_functions.py
+
+inputs:
+  datasources_dir: datasources
+  ontology_dir: ontologies
+  mapping_file: mappings/about_the_installation.yaml
+
+outputs:
+  artifacts_dir: dist/artifacts
+  graph_file: knowledgegraph/knowledge-graph.nt

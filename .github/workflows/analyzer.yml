@@ -1,0 +1,48 @@
+name: Analyzer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  run_analyzer:
+    name: Run analyzer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Read config
+        id: config
+        run: python3 .github/scripts/read-analyzer-config.py
+
+      - name: Pull image
+        shell: bash
+        run: |
+          docker pull "${{ vars.PIPELINE_IMAGE }}"
+
+      - name: Run analyzer
+        shell: bash
+        run: |
+          docker run --rm \
+            -e QASAR_KEY="${{ secrets.QASAR_KEY }}" \
+            -v "${GITHUB_WORKSPACE}:/workspace" \
+            -w /workspace \
+            "${{ vars.PIPELINE_IMAGE }}" \
+            run \
+              --workspace /workspace
+
+      - name: Commit generated graph
+        uses: ./.github/actions/commit-generated-graph
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: analyzer-artifacts
+          path: ${{ steps.config.outputs.artifacts-dir }}
+          if-no-files-found: warn
