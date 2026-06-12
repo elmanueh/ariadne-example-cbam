@@ -6,6 +6,7 @@ from pathlib import Path
 
 CONFIG_PATH = Path("ariadne.yml")
 DEFAULT_ARTIFACTS_DIR = "dist/artifacts"
+DEFAULT_GRAPH_FILE = "final_graph.nt"
 
 
 def main() -> int:
@@ -14,7 +15,7 @@ def main() -> int:
         return 1
 
     artifacts_dir = DEFAULT_ARTIFACTS_DIR
-    graph_output = ""
+    graph_output = DEFAULT_GRAPH_FILE
     inside_outputs = False
 
     for raw_line in CONFIG_PATH.read_text(encoding="utf-8").splitlines():
@@ -48,9 +49,12 @@ def main() -> int:
         )
         return 1
 
+    graph_artifact_path = str(Path(artifacts_dir) / graph_output)
+
     output_path = os.environ.get("GITHUB_OUTPUT")
     lines = [
         f"artifacts-dir={artifacts_dir}",
+        f"graph-artifact-path={graph_artifact_path}",
         f"graph-output-path={graph_output}",
     ]
     if output_path:

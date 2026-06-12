@@ -12,7 +12,7 @@ runs:
     - name: Commit generated graph
       shell: bash
       env:
-        SOURCE_GRAPH: ${{ steps.config.outputs.artifacts-dir }}/final_graph.nt
+        SOURCE_GRAPH: ${{ steps.config.outputs.graph-artifact-path }}
         TARGET_GRAPH: ${{ steps.config.outputs.graph-output-path }}
         TARGET_PATH_FILE: ${{ runner.temp }}/generated-graph-target-path
         COMMIT_MESSAGE: Update generated graph
@@ -34,9 +34,8 @@ runs:
         target_value = os.environ["TARGET_GRAPH"].strip()
 
         if not target_value:
-            print("::notice::outputs.graph_file is not set in ariadne.yml. Nothing to commit.")
-            Path(os.environ["TARGET_PATH_FILE"]).write_text("", encoding="utf-8")
-            sys.exit(0)
+            print("::error::graph-output-path is empty.")
+            sys.exit(1)
 
         target = Path(target_value)
 
