@@ -1,0 +1,27 @@
+<https://data.com/cbam/cbamreport#Address_TRABC> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/cbamreport/Address> .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasCity> "Example City" .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasCountry> <https://sws.geonames.org/298795> .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasNumber> "2023" .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasPoBox> "XYZ" .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasPostCode> "123456" .
+<https://data.com/cbam/cbamreport#Address_TRABC> <https://purl.org/cbam/cbamreport/hasStreet> "Cement street" .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/cbamreport/Installation> .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <http://xmlns.com/foaf/0.1/name> "Example Cement Producer" .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://purl.org/cbam/cbamreport/hasAddress> <https://data.com/cbam/cbamreport#Address_TRABC> .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://purl.org/cbam/cbamreport/hasEconomicActivity> <https://data.com/cbam/cbamreport#economic_activity_Clinker%20and%20cement> .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://purl.org/cbam/cbamreport/hasReport> <https://data.com/cbam/cbamreport#CommunicationReport_TRABC2023010120231231> .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://purl.org/cbam/cbamreport/hasRepresentative> <https://data.com/cbam/cbamreport#Representative_TRABC> .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://purl.org/cbam/cbamreport/hasUNLOCODE> "TRABC" .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://www.geonames.org/ontology#lat> "16.6911279" .
+<https://data.com/cbam/cbamreport#Installation_TRABC> <https://www.geonames.org/ontology#long> "147.80337464" .
+<https://data.com/cbam/cbamreport#Representative_TRABC> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/cbamreport/Representative> .
+<https://data.com/cbam/cbamreport#economic_activity_Clinker%20and%20cement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/cbamreport/EconomicActivity> .
+<https://data.com/cbam/cbamreport#economic_activity_Clinker%20and%20cement> <http://www.w3.org/2000/01/rdf-schema#label> "Clinker and cement" .
+<https://data.com/cbam/cbamreport#economic_activity_Clinker%20and%20cement> <http://xmlns.com/foaf/0.1/name> "Clinker and cement" .
+<https://sws.geonames.org/298795> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#NamedIndividual> .
+<https://sws.geonames.org/298795> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/Country> .
+<https://sws.geonames.org/298795> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://purl.org/cbam/EU_Third_Country> .
+<https://sws.geonames.org/298795> <https://www.geonames.org/ontology#countryCode> "TR" .
+<https://sws.geonames.org/298795> <https://www.geonames.org/ontology#lat> "39" .
+<https://sws.geonames.org/298795> <https://www.geonames.org/ontology#long> "35" .
+<https://sws.geonames.org/298795> <https://www.geonames.org/ontology#name> "Republic of Turkey" .
