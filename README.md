@@ -6,14 +6,15 @@ This example shows how Ariadne turns small CBAM installation data into RDF.
 
 ## Contents
 
-| Path              | Description                           |
-| ----------------- | ------------------------------------- |
-| `datasources/`    | Input CSV files.                      |
-| `functions/`      | UDFs used by the mapping.             |
-| `knowledgegraph/` | Generated RDF graph.                  |
-| `mappings/`       | YARRRML mapping.                      |
-| `ontologies/`     | CBAM, CountryPlus and GeoNames terms. |
-| `ariadne.yml`     | Ariadne pipeline configuration.       |
+| Path                          | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| `datasources/`                | Input CSV files.                           |
+| `functions/`                  | UDFs used by the mapping.                  |
+| `knowledgegraph/`             | Generated RDF graph.                       |
+| `mappings/`                   | YARRRML mapping.                           |
+| `ontologies/`                 | CBAM, CountryPlus and GeoNames terms.      |
+| `ariadne.yml`                 | Ariadne pipeline configuration.            |
+| `ontology_metrics_policy.yml` | Ontology quality rules used by Ariadne.    |
 
 ## Case Study
 
@@ -28,6 +29,10 @@ country and enriches it with data from `CountryPlus.ttl`.
 
 Ariadne reads `ariadne.yml`, loads the input files and writes the RDF graph to
 `knowledgegraph/knowledge-graph.nt`.
+
+This example also validates ontology quality. The `ontology_metrics_policy.yml`
+file defines which QASAR quality checks are expected to pass and the accepted
+thresholds for this project.
 
 For CI, set `QASAR_KEY` as a secret and `PIPELINE_IMAGE` as a repository
 variable.
