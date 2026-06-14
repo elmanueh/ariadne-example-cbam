@@ -1,0 +1,22 @@
+id: ontology-quality-v1
+label: "Quality metrics"
+description: "Reusable metric thresholds for ontology, mapping and graph quality"
+applies_to: ontology
+version: "1.0.0"
+
+metrics:
+  - id: AnnotationPropertiesWithNoDescriptionMetric
+    value:
+      type: percentage
+    evaluation:
+      pass_if:
+        min_value: 0.0
+        max_value: 100.0
+
+  - id: NumberOfPropertiesMetric
+    value:
+      type: ratio
+    evaluation:
+      pass_if:
+        min_value: 0.0
+        max_value: null
